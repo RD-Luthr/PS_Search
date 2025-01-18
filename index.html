@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Address Search</h1>
+    <div class="search-container">
+        <input type="text" id="addressInput" placeholder="Enter an address">
+        <button onclick="getCoordinates()">Submit</button>
+    </div>
+
+    <div id="result" style="margin-top: 20px;">
+        <!-- The result will be displayed here -->
+    </div>
+
+    <script>
+        async function getCoordinates() {
+            const address = document.getElementById('addressInput').value;
+            if (!address) {
+                alert('Please enter an address.');
+                return;
+            }
+
+            // Fetch data from the Crimeometer API (replace YOUR_API_KEY with your key)
+            const apiKey = 'k3RAzKN1Ag14xTPlculT39RZb38LGgsG8n27ZycG';
+            const apiUrl = `https://api.crimeometer.com/v1/geo/coordinates`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                    },
+                    body: JSON.stringify({ address })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error fetching coordinates');
+                }
+
+                const data = await response.json();
+                const { latitude, longitude } = data;
+                document.getElementById('result').innerHTML = `Coordinates: Latitude: ${latitude}, Longitude: ${longitude}`;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('result').innerHTML = 'Error fetching coordinates. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
