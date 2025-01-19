@@ -28,14 +28,14 @@
         }
         button {
             padding: 10px 15px;
-            background-color: #007bff;
+            background-color: #FF5722;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #a63a19;
         }
     </style>
 </head>
@@ -58,30 +58,34 @@
                 return;
             }
 
-            // Fetch data from the Crimeometer API (replace YOUR_API_KEY with your key)
-            const apiKey = 'k3RAzKN1Ag14xTPlculT39RZb38LGgsG8n27ZycG';
-            const apiUrl = `https://api.crimeometer.com/v1/geo/coordinates`;
+            // Census Bureau Geocoder API URL
+            const apiUrl = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(
+                address
+            )}&benchmark=Public_AR_Current&format=json`;
 
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                    },
-                    body: JSON.stringify({ address })
-                });
-
+                const response = await fetch(apiUrl);
                 if (!response.ok) {
-                    throw new Error('Error fetching coordinates');
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                const { latitude, longitude } = data;
-                document.getElementById('result').innerHTML = `Coordinates: Latitude: ${latitude}, Longitude: ${longitude}`;
+                const coordinates =
+                    data.result.addressMatches[0]?.coordinates || null;
+
+                if (coordinates) {
+                    const { x: longitude, y: latitude } = coordinates;
+                    document.getElementById(
+                        'result'
+                    ).innerHTML = `Coordinates: Latitude: ${latitude}, Longitude: ${longitude}`;
+                } else {
+                    document.getElementById('result').innerHTML =
+                        'No coordinates found for the entered address.';
+                }
             } catch (error) {
-                console.error(error);
-                document.getElementById('result').innerHTML = 'Error fetching coordinates. Please try again.';
+                console.error('Error fetching coordinates:', error);
+                document.getElementById('result').innerHTML =
+                    'Error fetching coordinates. Please try again.';
             }
         }
     </script>
